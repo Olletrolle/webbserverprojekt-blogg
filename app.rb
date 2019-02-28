@@ -17,10 +17,6 @@ get('/create') do
   slim(:create)
 end
 
-get('/profile') do
-  slim(:create)
-end
-
 post('/login') do
 
   db = SQLite3::Database.new('./db/databas.db')
@@ -35,10 +31,15 @@ post('/login') do
   if BCrypt::Password.new(hash_password) == params["password"]
     session[:id] = db.execute("SELECT id FROM users WHERE nickname = '#{params["nickname"]}'").first["id"]
     session[:username] = db.execute("SELECT nickname FROM users WHERE nickname = '#{params["nickname"]}'").first["nickname"]
-    redirect("/profile")
+    redirect("/profile/#{session[:username]}")
   else
     redirect('/')
   end
+end
+
+get("/profile/#{userId}") do
+  userId = session[:id]
+  slim(:profile)
 end
 
 post('/create') do
