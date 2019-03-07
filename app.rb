@@ -17,6 +17,10 @@ get('/create') do
   slim(:create)
 end
 
+get('/edit') do
+  slim(:edit)
+end
+
 post('/login') do
 
   db = SQLite3::Database.new('./db/databas.db')
@@ -26,25 +30,43 @@ post('/login') do
   
   password = list[0][0]
   
-  hash_password = BCrypt::Password.create(password)
-
-  if BCrypt::Password.new(hash_password) == params["password"]
+  if BCrypt::Password.new(password) == params["password"]
     session[:id] = db.execute("SELECT id FROM users WHERE nickname = '#{params["nickname"]}'").first["id"]
     session[:username] = db.execute("SELECT nickname FROM users WHERE nickname = '#{params["nickname"]}'").first["nickname"]
-    redirect("/profile/#{session[:username]}")
+    session[:profile] = true
+    id = session[:id]
+    redirect("/profile/#{id}")
   else
-    redirect('/')
+    redirect('/nix')
   end
 end
 
-get("/profile/#{userId}") do
-  userId = session[:id]
-  slim(:profile)
+get("/profile/:id") do
+  db = SQLite3::Database.new('./db/databas.db')
+  db.results_as_hash = true
+
+  if session[:profile] == true
+    session[:users] = db.execute("SELECT nickname, realName FROM users WHERE id = #{session[:id]}")
+    slim(:profile, locals: {
+      user: session[:users]
+    })
+  else
+    redirect("/nix")
+  end
 end
 
 post('/create') do
   db = SQLite3::Database.new('./db/databas.db')
   db.results_as_hash = true
 
-  db.execute("INSERT INTO users(nickname, email, password) VALUES(?, ?, ?)", params["nickname"], params["email"], params["password"])
+  hash_password = BCrypt::Password.create( params["password"])
+
+  db.execute("INSERT INTO users(nickname, realName, password) VALUES(?, ?, ?)", params["nickname"], params["realName"], hash_password)
+end
+
+post('/edit') do
+  db = SQLite3::Database.new('./db/databas.db')
+  db.results_as_hash = true
+  db.execute("UPDATE users SET nickname = '?', realName = '?', WHERE id = #{session[:id]}", params["nickname"], params["realName"])
+  redirect("/profile/#{id}")
 end
