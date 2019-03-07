@@ -68,6 +68,7 @@ end
 post('/edit') do
   db = SQLite3::Database.new('./db/databas.db')
   db.results_as_hash = true
-  db.execute("UPDATE users SET nickname = '?', realName = '?', WHERE id = #{session[:id]}", params["nickname"], params["realName"])
-  redirect("/profile/#{id}")
+
+  db.execute("UPDATE users SET nickname ='?', realName = '?', WHERE id = :id}", params["nickname"], params["realName"])
+  redirect("/profile/:id")
 end
