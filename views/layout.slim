@@ -6,4 +6,13 @@ html lang="en"
         meta http-equiv="X-UA-Compatible" content="ie=edge"/
         title Document
     body
-        == yield
+
+    h1 Very cool blogg!
+
+    - if session[:username] != nil
+        p = session[:username] 
+    - else
+        p Not logged in
+    end
+
+     == yield

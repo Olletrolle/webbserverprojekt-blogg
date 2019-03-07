@@ -62,6 +62,7 @@ post('/create') do
   hash_password = BCrypt::Password.create( params["password"])
 
   db.execute("INSERT INTO users(nickname, realName, password) VALUES(?, ?, ?)", params["nickname"], params["realName"], hash_password)
+  redircedt("/")
 end
 
 post('/edit') do
