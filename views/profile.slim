@@ -3,18 +3,25 @@ p Welcome back:
     label = element['realName']
 end
 
-p Nickname:
-- user.each do |element|
-    label = element['nickname']
-end
+H1 Profile
 
 p
-textarea rows="1" cols="50" placeholder="Title"
+
+
+/ form action='/upload/#{session[:id]}' method="post"
+/     input type="submit" value="Create post"
+/ end
+
+a href='/uploadPost/#{session[:id]}' title='posts' Create post
+
 p
-textarea rows="8" cols="80" placeholder="Write your text"
-p 
-form action="/post" method="GET"
-    input type="submit" value="Upload post"
-p
-form action="/edit" method="GET"
-    input type="submit" value="Edit page"
+/ form action="/edit/#{session[:id]}" method="post"
+/     input type="submit" value="Edit page"
+/ end
+
+a href='/edit/#{session[:id]}' title='editName' Edit Name
+
+/ section
+/     - post.reverse_each do |element|
+/         label = element['title']
+/         p = element['text']
