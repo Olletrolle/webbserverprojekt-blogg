@@ -20,6 +20,8 @@ get('/edit') do
   slim(:edit)
 end
 
+
+
 post('/login') do
 
   db = SQLite3::Database.new('./db/databas.db')
@@ -29,14 +31,14 @@ post('/login') do
   
   password = list[0][0]
   
-  if BCrypt::Password.new(password) == params["password"]
+  if BCrypt::Password.new(password) == params["password"] 
     session[:id] = db.execute("SELECT id FROM users WHERE nickname = '#{params["nickname"]}'").first["id"]
     session[:username] = db.execute("SELECT nickname FROM users WHERE nickname = '#{params["nickname"]}'").first["nickname"]
     session[:profile] = true
     id = session[:id]
     redirect("/profile/#{id}")
   else
-    redirect('/nix')
+    redirect('/')
   end
 end
 
@@ -46,11 +48,15 @@ get("/profile/:id") do
 
   if session[:profile] == true
     session[:users] = db.execute("SELECT realName FROM users WHERE id = #{session[:id]}")
+    session[:posts] = db.execute("SELECT title, text FROM posts WHERE post_id = #{session[:id]}")
+
     slim(:profile, locals: {
-      user: session[:users]
+      user: session[:users],
+      post: session[:posts]
     })
   else
-    redirect("/nix")
+    redirect("/")
+    # alert("Var inte inloggad")
   end
 
 end
@@ -62,7 +68,7 @@ post('/create') do
   hash_password = BCrypt::Password.create( params["password"])
 
   db.execute("INSERT INTO users(nickname, realName, password) VALUES(?, ?, ?)", params["nickname"], params["realName"], hash_password)
-  redircedt("/")
+  redirect("/")
 end
 
 get("/uploadPost/:id") do
@@ -73,10 +79,30 @@ post("/uploadPost/:id") do
   db = SQLite3::Database.new('./db/databas.db')
   db.results_as_hash = true
 
-  post_id = session[:id]
+  postId = session[:id]
 
-  db.execute("INSERT INTO posts(title, text, post_id) VALUES(?, ?, ?)", params["title"], params["text"], post_id)
-  redircedt("/profile/:id")
+  db.execute("INSERT INTO posts(title, text, post_id) VALUES(?, ?, ?)", params["title"], params["text"], postId)
+  redirect("/profile/:id")
+end
+
+post("/deletePost/:id") do
+  db = SQLite3::Database.new('./db/databas.db')
+  db.results_as_hash = true
+
+  db.execute("DELETE FROM posts WHERE post_id = #{session[:id]}")
+  redirect("/profile/:id")
+end
+
+get('/editPost/:id') do
+  slim(:editPost)
+end
+
+post("/editPost/:id") do
+  db = SQLite3::Database.new('./db/databas.db')
+  db.results_as_hash = true
+
+  db.execute("UPDATE posts WHERE post_id = #{session[:id]}")
+  redirect("/profile/:id")
 end
 
 # post('/edit') do

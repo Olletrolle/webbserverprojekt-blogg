@@ -1,27 +1,37 @@
+H1 Profile
+
 p Welcome back:
 - user.each do |element|
     label = element['realName']
 end
 
-H1 Profile
-
 p
-
 
 / form action='/upload/#{session[:id]}' method="post"
 /     input type="submit" value="Create post"
 / end
 
-a href='/uploadPost/#{session[:id]}' title='posts' Create post
+a href='/edit/#{session[:id]}' title='editName' Edit Name
 
 p
 / form action="/edit/#{session[:id]}" method="post"
 /     input type="submit" value="Edit page"
 / end
+a href='/uploadPost/#{session[:id]}' title='posts' Create post
 
-a href='/edit/#{session[:id]}' title='editName' Edit Name
+p 
 
-/ section
-/     - post.reverse_each do |element|
-/         label = element['title']
-/         p = element['text']
+section
+    - post.reverse_each do |element|
+        h3 = element['title']
+        div
+            a href='/editPost/#{session[:id]}' title='editText' Edit
+            
+            form action="/deletePost/#{session[:id]}" method="post"
+                input type="submit" value="Delete"
+            end
+
+        p = element['text']
+        p -----------------
+    end
+end
